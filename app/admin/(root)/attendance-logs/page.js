@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import AttendanceTable from "./_components/AttendanceTable";
 import FilterDialog from "./_components/FilterDialog";
 import DashboardStats from "./_components/DashboardStats";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
 
 export default function AttendanceLogsPage() {
   const [logs, setLogs] = useState([]);
@@ -23,6 +24,8 @@ export default function AttendanceLogsPage() {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [departments, setDepartments] = useState([]); // Add departments state
+
+  const { canExport, canEdit, canDelete } = useRolePermissions();
 
   // Debounce utility function inside component
   const debounce = useCallback((func, timeout = 300) => {
@@ -176,9 +179,11 @@ export default function AttendanceLogsPage() {
             >
               <FiFilter className="mr-2 h-4 w-4" /> Filter
             </Button>
-            <Button variant="outline" onClick={handleExportLogs}>
-              <FiDownload className="mr-2 h-4 w-4" /> Export CSV
-            </Button>
+            {canExport('attendance_logs') && (
+              <Button variant="outline" onClick={handleExportLogs}>
+                <FiDownload className="mr-2 h-4 w-4" /> Export CSV
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>

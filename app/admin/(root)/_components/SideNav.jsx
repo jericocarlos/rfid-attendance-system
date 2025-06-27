@@ -8,28 +8,34 @@ import {
   Clipboard,
   Users,
   UserCog,
-  Shield
+  Shield,
+  Database
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from 'framer-motion';
 import { NAV_ITEMS } from '@/constants/navItems';
 import { useSession } from "next-auth/react";
+import { useDynamicNavigation } from '@/hooks/useDynamicNavigation';
 import SideNavSkeleton from './SideNavSkeleton';
+
 
 export default function SideNav({ collapsed }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
-  const isLoading = status === "loading";
+  const { navItems: dynamicNavItems, loading: navLoading } = useDynamicNavigation();
+  const isLoading = status === "loading" || navLoading;
 
-  // Show skeleton loading state while session is loading
+  // Show skeleton loading state while session or nav is loading
   if (isLoading) {
     return <SideNavSkeleton collapsed={collapsed} />;
   }
 
-  // Make sure your fallback matches what's in your constants
-  const role = session?.user?.role || 'admin'; // fallback role
-  const navItems = NAV_ITEMS[role] || NAV_ITEMS['admin']; // Use 'admin' as fallback to match line above
+  // Fallback to static nav items if dynamicNavItems is empty
+  const role = session?.user?.role || 'admin';
+  const navItems = (dynamicNavItems && dynamicNavItems.length > 0)
+    ? dynamicNavItems
+    : (NAV_ITEMS[role] || NAV_ITEMS['admin']);
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -97,7 +103,7 @@ export default function SideNav({ collapsed }) {
               const isActive = pathname.startsWith(item.href);
               
               return (
-                <motion.li 
+                <motion.li
                   key={item.name}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -110,8 +116,8 @@ export default function SideNav({ collapsed }) {
                         className={cn(
                           "flex items-center h-11 rounded-lg transition-all duration-200 group",
                           collapsed ? "px-3 justify-center" : "px-4",
-                          isActive 
-                            ? 'bg-blue-600 text-white shadow-lg' 
+                          isActive
+                            ? 'bg-blue-600 text-white shadow-lg'
                             : 'hover:bg-slate-800 text-slate-300 hover:text-white'
                         )}
                       >
@@ -123,7 +129,7 @@ export default function SideNav({ collapsed }) {
                         </span>
                         <AnimatePresence>
                           {!collapsed && (
-                            <motion.span 
+                            <motion.span
                               initial={{ opacity: 0, width: 0 }}
                               animate={{ opacity: 1, width: "auto" }}
                               exit={{ opacity: 0, width: 0 }}

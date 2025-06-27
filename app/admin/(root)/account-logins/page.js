@@ -13,6 +13,7 @@ import FilterDialog from "./_components/FilterDialog";
 import DashboardStats from "./_components/DashboardStats";
 import { useAccountLogins } from "@/hooks/useAccountLogins";
 import { ACCOUNT_ROLES } from "@/constants/accountConstants";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
 
 export default function AccountLoginsPage() {
   // State management
@@ -23,6 +24,7 @@ export default function AccountLoginsPage() {
   // Custom hooks
   const { enqueueSnackbar } = useSnackbar();
   const { data: session } = useSession();
+  const { canEdit, canDelete } = useRolePermissions();
   const {
     accounts,
     loading,
@@ -117,9 +119,11 @@ export default function AccountLoginsPage() {
             >
               <FiRefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
             </Button>
-            <Button onClick={() => handleOpenForm()}>
-              <FiPlus className="mr-2 h-4 w-4" /> Add Account
-            </Button>
+            {canEdit('account_logins') && (
+              <Button onClick={() => handleOpenForm()}>
+                <FiPlus className="mr-2 h-4 w-4" /> Add Account
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -137,6 +141,8 @@ export default function AccountLoginsPage() {
               onEdit={handleOpenForm}
               onDelete={handleDeleteAccount}
               session={session}
+              canEdit={canEdit('account_logins')}
+              canDelete={canDelete('account_logins')}
             />
           )}
         </CardContent>

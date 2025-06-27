@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { executeQuery } from "@/lib/db";
+import { clearPermissionsCache } from "@/lib/permissions";
 
 export async function GET(request) {
   try {
@@ -66,6 +67,9 @@ export async function POST(request) {
       values: [role, module, JSON.stringify(permission)]
     });
 
+    // Clear cache for this role
+    clearPermissionsCache(role);
+
     return Response.json({ message: "Role permission updated successfully" });
   } catch (error) {
     console.error('Error updating role permission:', error);
@@ -101,6 +105,9 @@ export async function PUT(request) {
       });
     }
 
+    // Clear all permissions cache since multiple roles might be affected
+    clearPermissionsCache();
+
     return Response.json({ message: "Bulk permissions updated successfully" });
   } catch (error) {
     console.error('Error bulk updating permissions:', error);
@@ -128,6 +135,9 @@ export async function DELETE(request) {
       query: `DELETE FROM role_permissions WHERE role = ? AND module = ?`,
       values: [role, moduleName]
     });
+
+    // Clear cache for this role
+    clearPermissionsCache(role);
 
     return Response.json({ message: "Role permission deleted successfully" });
   } catch (error) {

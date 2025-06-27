@@ -10,6 +10,7 @@ import EmployeeTable from "./_components/EmployeeTable";
 import EmployeeFormDialog from "./_components/EmployeeFormDialog";
 import FilterDialog from "./_components/FilterDialog";
 import DashboardStats from "./_components/DashboardStats";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
 
 export default function EmployeesManagementPage() {
   const [employees, setEmployees] = useState([]);
@@ -30,6 +31,7 @@ export default function EmployeesManagementPage() {
   const [currentEmployee, setCurrentEmployee] = useState(null);
 
   const { enqueueSnackbar } = useSnackbar();
+  const { canEdit, canDelete, canExport, loading: permissionsLoading } = useRolePermissions();
 
   const fetchEmployees = useCallback(async () => {
     try {
@@ -189,9 +191,11 @@ export default function EmployeesManagementPage() {
             <Button onClick={handleOpenFilter}>
               <FiFilter className="mr-2 h-4 w-4" /> Filter
             </Button>
-            <Button onClick={() => handleOpenForm()}>
-              <FiPlus className="mr-2 h-4 w-4" /> Add Employee
-            </Button>
+            {canEdit('employees_management') && (
+              <Button onClick={() => handleOpenForm()}>
+                <FiPlus className="mr-2 h-4 w-4" /> Add Employee
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -211,6 +215,8 @@ export default function EmployeesManagementPage() {
                 setCurrentEmployee(employee);
                 setIsDeleteDialogOpen(true);
               }}
+              canEdit={canEdit('employees_management')}
+              canDelete={canDelete('employees_management')}
             />
           )}
         </CardContent>

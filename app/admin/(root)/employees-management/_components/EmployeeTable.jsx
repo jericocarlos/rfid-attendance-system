@@ -39,7 +39,9 @@ export default function EmployeeTable({
   pagination, 
   setPagination,
   onEdit,
-  onDelete
+  onDelete,
+  canEdit = true,
+  canDelete = true
 }) {
   const [sorting, setSorting] = useState([]);
   
@@ -120,21 +122,25 @@ export default function EmployeeTable({
       id: "actions",
       cell: ({ row }) => (
         <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onEdit(row.original)}
-          >
-            <FiEdit className="h-4 w-4" />
-          </Button>
-          {/* <Button
-            variant="outline"
-            size="sm"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-            onClick={() => onDelete(row.original)}
-          >
-            <FiTrash2 className="h-4 w-4" />
-          </Button> */}
+          {canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(row.original)}
+            >
+              <FiEdit className="h-4 w-4" />
+            </Button>
+          )}
+          {canDelete && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              onClick={() => onDelete(row.original)}
+            >
+              <FiTrash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
